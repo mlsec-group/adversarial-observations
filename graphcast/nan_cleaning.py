@@ -47,7 +47,7 @@ class NaNCleaner(base.Predictor):
     """Cleans the dataset of NaNs."""
     data_array = dataset[self._var_to_clean]
     dataset = dataset.assign(
-        {self._var_to_clean: data_array.fillna(self._fill_value)}
+        {self._var_to_clean: data_array.fillna(self._fill_value.astype(data_array.dtype))}
     )
     return dataset
 
