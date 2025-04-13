@@ -60,7 +60,8 @@ def unnormalize(values: xarray.Dataset,
     if array.name in scales:
       array = array * scales[array.name].astype(array.dtype)
     else:
-      logging.warning('No normalization scale found for %s', array.name)
+      pass # expected for our normalization
+      # logging.warning('No normalization scale found for %s', array.name)
     if locations is not None:
       if array.name in locations:
         array = array + locations[array.name].astype(array.dtype)
