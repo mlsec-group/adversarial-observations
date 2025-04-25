@@ -1,0 +1,10 @@
+Bootstrap: docker
+From: python:3.12
+
+%post
+    pip install uv
+    uv pip install --system numpy tqdm netCDF4 h5netcdf
+    uv pip install --system "jax[cuda12]"
+    uv pip install --system google-cloud-storage gcsfs
+    uv pip install --system https://github.com/deepmind/graphcast/archive/master.zip
+    uv pip install --system jupyter matplotlib scikit-learn jupyterlab-lsp ipywidgets
