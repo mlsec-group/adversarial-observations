@@ -1,16 +1,18 @@
 # Adversarial Observations in Weather Forecasting
 
-This repository contains the code used for the publication "Adversarial Observations in Weather Forecasting". You can reproduce our results using the code in this repository. It also contains our forked variant of the [GenCast package](https://github.com/google-deepmind/graphcast).
+This is the code repository accompanying our paper [Adversarial Observations in Weather Forecasting](https://arxiv.org/abs/2504.15942). You can reproduce our results using the code in this repository.
 
 ## Dependencies
 
-We package all dependencies in an [apptainer](https://apptainer.org/) image for ease of reproduction. You can build the package using
+We package all dependencies in an [apptainer](https://apptainer.org/) image for ease of reproduction. Our forked variant of the [GenCast package](https://github.com/google-deepmind/graphcast) is included directly in this repository.
+
+You can build the container using
 > apptainer build container.sif container.def
 
 and then start an interactive session (with support for Nvidia CUDA) using
 > apptainer run --nv container.sif bash
 
-We assume that all scripts are executed in this environment.
+We assume that all scripts are executed in this environment with an appropriate CUDA-capable GPU. All test were performed on NVIDIA A40 gpus with 48 GB VRAM.
 
 ## Data
 
