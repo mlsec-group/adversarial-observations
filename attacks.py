@@ -148,3 +148,81 @@ def our_attack(
             print(t, loss)
 
     return perturbation
+
+def our_attack_wo_approximation(
+        inputs,
+        targets,
+        forcings,
+        epsilon,
+        grads_fn,
+        maxiter=10,
+        do_log=False,
+    ):
+    beta = 0.9
+    def _cos_anneal(eta_0, eta_min, t):
+        return eta_min + 0.5 * (eta_0 - eta_min) * (1 + np.cos(t * np.pi / maxiter))
+    _learning_rate = lambda t: _cos_anneal(2*epsilon, epsilon/maxiter, t)
+
+    # zero init
+    perturbation = xarray_tree.map_structure(lambda a: 0*a, inputs)
+    first_moment = xarray_tree.map_structure(lambda a: 0*a, inputs)
+
+    for t in range(maxiter):
+        perturbed_inputs = add_perturbation(inputs, perturbation)
+        loss, grads = grads_fn(
+            rng=jax.random.PRNGKey(t),
+            inputs=perturbed_inputs,
+            targets=targets,
+            forcings=forcings,
+            approximation_steps=1,
+        )
+
+        for var in VARS_TO_ATTACK:
+            x = xarray_jax.unwrap_data(perturbation[var])
+            diff = xarray_jax.unwrap_data(grads[var])
+            diff = scale_std(diff) # scale to std = 1
+            diff = beta * xarray_jax.unwrap_data(first_moment[var]) + (1 - beta) * diff
+            first_moment[var].data = xarray_jax.wrap(diff)
+            learning_rate = _learning_rate(t) / (1 - beta**(t+1))
+            new_x = x - learning_rate * diff
+            new_x = projection(new_x, epsilon)
+            perturbation[var].data = xarray_jax.wrap(new_x)
+        if do_log:
+            print(t, loss)
+
+    return perturbation
+
+def our_attack_wo_steps(
+        inputs,
+        targets,
+        forcings,
+        epsilon,
+        grads_fn,
+        maxiter=10,
+        do_log=False,
+    ):
+    learning_rate = 2 * epsilon / maxiter
+    # zero init
+    perturbation = xarray_tree.map_structure(lambda a: 0*a, inputs)
+
+    for t in range(maxiter):
+        perturbed_inputs = add_perturbation(inputs, perturbation)
+        loss, grads = grads_fn(
+            rng=jax.random.PRNGKey(t),
+            inputs=perturbed_inputs,
+            targets=targets,
+            forcings=forcings,
+            approximation_steps=2,
+        )
+
+        for var in VARS_TO_ATTACK:
+            x = xarray_jax.unwrap_data(perturbation[var])
+            diff = xarray_jax.unwrap_data(grads[var])
+            diff = scale_std(diff) # scale to std = 1
+            new_x = x - learning_rate * diff
+            new_x = projection(new_x, epsilon)
+            perturbation[var].data = xarray_jax.wrap(new_x)
+        if do_log:
+            print(t, loss)
+
+    return perturbation

@@ -42,6 +42,15 @@ We assume that all data from the previous section is set up. In that case, you c
 
 The results can then be evaluated using the notebook `plot_results.ipynb`, which reproduces all results, including the evaluation of the detectability.
 
+## Ablation study
+> python3 evaluate.py --epsilons 0.03 0.05 --offset 0 --locations 34 --target=wind
+
+> python3 evaluate.py --epsilons 0.03 0.05 --offset 34 --locations 34 --target=temperature
+
+> python3 evaluate.py --epsilons 0.03 0.05 --offset 68 --locations 32 --target=precipitation
+
+The results can then be evaluated using the notebook `plot_results.ipynb`, which reproduces all results, including the evaluation of the detectability.
+
 ## Case Studies on manipulating extreme weather predictions
 
 The case studies are realized as the following Jupyter Notebooks:
