@@ -1,6 +1,6 @@
 # Adversarial Observations in Weather Forecasting
 
-This is the code repository accompanying our paper [Adversarial Observations in Weather Forecasting](https://arxiv.org/abs/2504.15942). You can reproduce our results using the code in this repository.
+This is the code repository accompanying our paper [Adversarial Observations in Weather Forecasting](https://arxiv.org/abs/2504.15942).
 
 ## Dependencies
 
@@ -21,7 +21,7 @@ This will produce the file `data/report/report.pdf`. Depending on if you have ru
 
 ## Manual execution
 
-If you want to do every stepp manually, you can do so as well. You could either just follow the easily readable shell scripts or this readme for a bit of further description.
+If you want to run through every step manually, you can. Just use the shell scripts as a guide, or this readme for a bit of further description.
 
 You can build the container using
 ```bash
