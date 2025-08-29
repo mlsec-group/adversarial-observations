@@ -4,20 +4,20 @@ set -e
 
 export JAX_CAPTURED_CONSTANTS_WARN_BYTES=-1
 
-echo "** Step 1/4: Main evaluation: a,b,c (Total estimated time: 7.5h) **"
-echo "** Step 1a/4: Wind (Estimated time: 2.5h) **"
+echo "** Step 1/4: Main evaluation: a,b,c (Total estimated time: 90h) **"
+echo "** Step 1a/4: Wind (Estimated time: 30h) **"
 apptainer run --nv container.sif python3 src/evaluate.py --epsilons 0.02 0.03 0.04 0.05 0.07 --target=wind
-echo "** Step 1b/4: Temperature (Estimated time: 2.5h) **"
+echo "** Step 1b/4: Temperature (Estimated time: 30h) **"
 apptainer run --nv container.sif python3 src/evaluate.py --epsilons 0.02 0.03 0.04 0.05 0.07 --target=temperature
-echo "** Step 1c/4: Precipitation (Estimated time: 2.5h) **"
+echo "** Step 1c/4: Precipitation (Estimated time: 30h) **"
 apptainer run --nv container.sif python3 src/evaluate.py --epsilons 0.02 0.03 0.04 0.05 0.07 --target=precipitation
 
-echo "** Step 2/4: Ablation study: a,b,c (Total estimated time: 7.5h) **"
-echo "** Step 2a/4: Wind (Estimated time: 2.5h) **"
+echo "** Step 2/4: Ablation study: a,b,c (Total estimated time: 22.5h) **"
+echo "** Step 2a/4: Wind (Estimated time: 7.5h) **"
 apptainer run --nv container.sif python3 src/evaluate.py --do-ablation --epsilons 0.03 0.05 --offset 0 --locations 34 --target=wind
-echo "** Step 2b/4: Temperature (Estimated time: 2.5h) **"
+echo "** Step 2b/4: Temperature (Estimated time: 7.5h) **"
 apptainer run --nv container.sif python3 src/evaluate.py --do-ablation --epsilons 0.03 0.05 --offset 34 --locations 34 --target=temperature
-echo "** Step 2c/4: Precipitation (Estimated time: 2.5h) **"
+echo "** Step 2c/4: Precipitation (Estimated time: 7.5h) **"
 apptainer run --nv container.sif python3 src/evaluate.py --do-ablation --epsilons 0.03 0.05 --offset 68 --locations 32 --target=precipitation
 
 echo "** Step 3/4: Case studies (Total estimated time: 30min) **"
