@@ -1,3 +1,4 @@
+import os
 import xarray
 
 print("Starting opening")
@@ -27,4 +28,5 @@ all_vars = { # input_variables | forcing_variables | target_variables
 }
 selected_full_year = full_year[list(all_vars & set(full_year.data_vars))]
 print("Starting saving")
+os.makedirs("data", exist_ok=True)
 selected_full_year.to_netcdf("data/one_year_era5.nc", format="NETCDF4")

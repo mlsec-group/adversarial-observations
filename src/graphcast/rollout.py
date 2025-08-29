@@ -397,7 +397,7 @@ def _get_next_inputs(
   num_inputs = prev_inputs.sizes["time"]
   return (
       xarray.concat(
-          [prev_inputs, next_inputs], dim="time", data_vars="different")
+          [prev_inputs, next_inputs], dim="time", data_vars="different", compat="equals")
       .tail(time=num_inputs))
 
 

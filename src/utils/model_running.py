@@ -13,7 +13,7 @@ from graphcast import xarray_tree
 from graphcast import xarray_jax
 from graphcast.rollout import _get_next_inputs
 
-from data_loading import init_gcs, load_normalization_data, load_model
+from .data_loading import init_gcs, load_normalization_data, load_model
 
 ### GLOBAL STATE
 

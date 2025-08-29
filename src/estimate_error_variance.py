@@ -10,8 +10,8 @@ import jax.numpy as jnp
 
 from graphcast import xarray_jax
 
-from data_loading import load_data
-from model_running import (
+from utils.data_loading import load_data
+from utils.model_running import (
     forward_fn_jitted, task_config,
 )
 

@@ -2,9 +2,11 @@ Bootstrap: docker
 From: python:3.12
 
 %post
+    apt update && apt install --yes texlive-full inkscape
     pip install uv
     uv pip install --system numpy tqdm netCDF4 h5netcdf
     uv pip install --system "jax[cuda12]"
+    uv pip install --system cartopy chex colabtools dask dinosaur-dycore dm-haiku dm-tree \
+        jraph matplotlib numpy pandas rtree scipy trimesh typing_extensions xarray xarray_tensorstore
     uv pip install --system google-cloud-storage gcsfs
-    uv pip install --system https://github.com/deepmind/graphcast/archive/master.zip
     uv pip install --system jupyter matplotlib scikit-learn jupyterlab-lsp ipywidgets

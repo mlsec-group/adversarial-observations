@@ -25,7 +25,7 @@ VARS_TO_ATTACK = [
     'vertical_velocity',
 ]
 
-SCALES_PATH = Path(__file__).parent / "data" / "estimated_error_scales.nc"
+SCALES_PATH = Path(__file__).parent.parent.parent / "data" / "estimated_error_scales.nc"
 with open(SCALES_PATH, "rb") as f:
     STDDEVS = xarray.load_dataset(f).compute()
 

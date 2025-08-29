@@ -11,12 +11,13 @@ import jax.numpy as jnp
 
 from graphcast import xarray_jax
 
-from data_loading import load_data
-from model_running import (
+from utils.data_loading import load_data
+from utils.model_running import (
     multi_step_forward_jit, forward_fn_jitted, build_static_data_selector,
     approx_forward_fn_jitted, task_config,
 )
-from attacks import add_perturbation, advdm, our_attack, dp_attacker
+from utils.attacks import add_perturbation, advdm, our_attack, dp_attacker
+from utils.attacks import our_attack_wo_steps, our_attack_wo_approximation
 
 # Warning appears during jit-compilation of forward computation
 # can be ignored, because while it is inefficient, it is only done twice
@@ -31,6 +32,8 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S'
 )
+jax_logger = logging.getLogger("jax._src.xla_bridge")
+jax_logger.setLevel(logging.ERROR)
 logger = logging.getLogger(__name__)
 
 
@@ -101,15 +104,17 @@ def adv_grads_fn(rng, inputs, targets, forcings, approximation_steps, variable_s
 adv_grads_fn_jitted = jax.jit(adv_grads_fn, static_argnums=(4,5,6))
 
 
-def path_for(epsilon, target, steps):
-    return f"data/results/{target}_{epsilon}eps_{steps}steps.json"
+def path_for(epsilon, target, steps, is_ablation):
+    ablation_prefix = "ablation_" if is_ablation else ""
+    return f"data/results/{ablation_prefix}{target}_{epsilon}eps_{steps}steps.json"
 
-def dump_results(results, epsilon, target, steps):
-    with open(path_for(epsilon, target, steps), "w") as f:
+def dump_results(results, epsilon, target, steps, is_ablation):
+    os.makedirs("data/results", exist_ok=True)
+    with open(path_for(epsilon, target, steps, is_ablation), "w") as f:
         json.dump(results[epsilon], f)
 
-def load_results(epsilon, target, steps):
-    path = path_for(epsilon, target, steps)
+def load_results(epsilon, target, steps, is_ablation):
+    path = path_for(epsilon, target, steps, is_ablation)
     if not os.path.isfile(path):
         return None
     with open(path, "r") as f:
@@ -126,12 +131,20 @@ if __name__ == "__main__":
     parser.add_argument("--epsilons", type=float, nargs='+', required=True)
     parser.add_argument("--target", choices=TARGET_SELECTORS.keys(), required=True)
     parser.add_argument("--steps", type=int, default=50)
+    parser.add_argument("--offset", type=int, default=0)
+    parser.add_argument("--locations", type=int, default=-1)
+    parser.add_argument("--do-ablation", action="store_true")
 
     args = parser.parse_args()
 
 
     with open("data/weather_evaluation_targets.json", "r") as f:
         targets = json.load(f)
+    
+    if args.locations < 0:
+        args.locations = len(targets)
+    logger.info(f"Working on subset from {args.offset} to {args.offset+args.locations} (of {len(targets)} possible targets)")
+    targets = targets[args.offset:(args.offset+args.locations)]
     
     # era5 = xarray.open_zarr("gs://weatherbench2/datasets/era5/1959-2023_01_10-wb13-6h-1440x721_with_derived_variables.zarr")
     # cached variant:
@@ -142,6 +155,11 @@ if __name__ == "__main__":
         "AdvDM": advdm,
         "DP-Attacker": dp_attacker,
     }
+    if args.do_ablation:
+        ATTACKS = {
+            "w/o approx": our_attack_wo_approximation,
+            "w/o steps": our_attack_wo_steps,
+        }
     SEEDS = [1234567890, 123456789, 1234567, 123456, 12345]
 
     variable_selector = TARGET_SELECTORS[args.target]
@@ -149,7 +167,7 @@ if __name__ == "__main__":
     results = {}
     for epsilon in args.epsilons:
         # warm restart: test whether we already have data
-        cached = load_results(epsilon, args.target, args.steps)
+        cached = load_results(epsilon, args.target, args.steps, args.do_ablation)
         if cached is not None:
             results[epsilon] = cached
             continue
@@ -216,7 +234,7 @@ if __name__ == "__main__":
                 if len(results[epsilon][name]) > i:
                     logger.info(f"Skipping sample {i+1} attack '{name}', already computed")
                     continue
-                logger.info(f"Attack {name}")
+                logger.info(f"Attack: {name}")
                 perturbation = fn(
                     inputs,
                     predicted_targets,
@@ -234,7 +252,7 @@ if __name__ == "__main__":
                 logger.info(f"{name} loss: {perturbed_results}")
                 results[epsilon][name].append(perturbed_results)
             
-            dump_results(results, epsilon, args.target, args.steps)
+            dump_results(results, epsilon, args.target, args.steps, args.do_ablation)
     
     for epsilon in args.epsilons:
-        dump_results(results, epsilon, args.target, args.steps)
+        dump_results(results, epsilon, args.target, args.steps, args.do_ablation)
