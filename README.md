@@ -14,7 +14,7 @@ We assume that all scripts are executed with an appropriate CUDA-capable GPU. Al
 
 1. `scripts/build.sh` (Estimated time: 5h)
 2. Evaluation of attacks
-    1. Full evaluation: `scripts/run.sh` (Estimated time: 123h)
+    1. Full evaluation: `scripts/run.sh` (Estimated time: 203h)
     2. Partial evaluation: `scripts/run_short.sh` (Estimated time: 12h)
 
 This will produce the file `data/report/report.pdf`. Depending on if you have run the full evaluation or the short evaluation, this report should match either `expected_results/report_full.pdf` or `expected_results/report_short.pdf`, respectively.
