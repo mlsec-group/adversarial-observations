@@ -273,27 +273,27 @@ if __name__ == "__main__":
     save_results_to_dats("precipitation")
 
     ## lat susceptibility
-    with open("data/weather_evaluation_targets.json", "r") as f:
-        targets = json.load(f)
-    if args.short:
-        targets = targets[:10]
-    ATTACKS = ["Ours", "DP-Attacker", "AdvDM"]
+    if not args.short:
+        with open("data/weather_evaluation_targets.json", "r") as f:
+            targets = json.load(f)
+        ATTACKS = ["Ours", "DP-Attacker", "AdvDM"]
 
-    temperature_per_attack = get_intersection_per_attack("temperature", 11.75064901, targets, ATTACKS)
-    wind_per_attack = get_intersection_per_attack("wind", 12.56660729, targets, ATTACKS)
-    precipitation_per_attack = get_intersection_per_attack("precipitation", 0.06293304, targets, ATTACKS)
-    mean_ours = (
-        np.asarray(temperature_per_attack["Ours"])[:, 2] +
-        np.asarray(wind_per_attack["Ours"])[:, 2] +
-        np.asarray(precipitation_per_attack["Ours"])[:, 2]
-        ) / 3
-    lats = np.asarray(temperature_per_attack["Ours"])[:, 1]
+        temperature_per_attack = get_intersection_per_attack("temperature", 11.75064901, targets, ATTACKS)
+        wind_per_attack = get_intersection_per_attack("wind", 12.56660729, targets, ATTACKS)
+        precipitation_per_attack = get_intersection_per_attack("precipitation", 0.06293304, targets, ATTACKS)
+        mean_ours = (
+            np.asarray(temperature_per_attack["Ours"])[:, 2] +
+            np.asarray(wind_per_attack["Ours"])[:, 2] +
+            np.asarray(precipitation_per_attack["Ours"])[:, 2]
+            ) / 3
+        lats = np.asarray(temperature_per_attack["Ours"])[:, 1]
 
 
     ## ablation studies
-    wind = summarize_ablation("wind", 0)
-    temperature = summarize_ablation("temperature", 34 if not args.short else 0)
-    precipitation = summarize_ablation("precipitation", 68 if not args.short else 0)
+    if not args.short:
+        wind = summarize_ablation("wind", 0)
+        temperature = summarize_ablation("temperature", 34 if not args.short else 0)
+        precipitation = summarize_ablation("precipitation", 68 if not args.short else 0)
 
     ## detectability
     p_temperature = compute_detectability("temperature", 11.75064901)
@@ -323,8 +323,9 @@ if __name__ == "__main__":
 
 \\begin{document}
 """
-     
-    result += f"""
+    
+    if not args.short:
+        result += f"""
 \\begin{{table}}
 \\centering
 \\caption{{Mean relative deviation achieved by different ablations (c.f. Table 1 in the paper).}}
@@ -508,7 +509,11 @@ if __name__ == "__main__":
 \\end{tikzpicture}
 \\caption{Resulting mean deviation induced by adversarial observations of different sizes (c.f. Figure 2 in the paper).}
 \\end{figure}
+"""
 
+    ### ablation studies
+    if not args.short:
+        result += """
 \\begin{figure}
 \\centering
 \\begin{tikzpicture}
@@ -537,7 +542,10 @@ if __name__ == "__main__":
 \\end{tikzpicture}
 \\caption{Mean required noise increase at different locations (c.f. Figure 3 in the paper).}
 \\end{figure}
+"""
 
+    ### case studies
+    result += """
 \\begin{figure}[b]
     \\centering
     % IMPORTANT! height/width ratio is chosen to adjust for map distortion!
@@ -590,8 +598,9 @@ if __name__ == "__main__":
 
     with open("data/report/report.tex", "w") as f:
         f.write(result)
-    with open("data/report/lat_susceptibility.dat", "w") as f:
-        f.write("\n".join(f"{lat} {mean}" for lat, mean in zip(np.abs(lats), mean_ours)))
+    if not args.short:
+        with open("data/report/lat_susceptibility.dat", "w") as f:
+            f.write("\n".join(f"{lat} {mean}" for lat, mean in zip(np.abs(lats), mean_ours)))
 
     with open("data/report/heat_colorbar.svg", "w") as f:
         f.write(heat_gradient(matplotlib.colormaps["coolwarm"]))
