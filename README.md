@@ -4,7 +4,7 @@ This is the code repository accompanying our paper [Adversarial Observations in 
 
 ## Dependencies
 
-We package all dependencies using an [apptainer](https://apptainer.org/) container for ease of reproduction. Our forked variant of the [GenCast package](https://github.com/google-deepmind/graphcast) is included directly in this repository.
+We package all dependencies using an [apptainer](https://apptainer.org/) container for ease of reproduction. Our forked variant of the [GenCast package](https://github.com/google-deepmind/graphcast) is included in this repository under `src/graphcast`.
 
 ## Quickstart
 
@@ -60,6 +60,14 @@ Visualization of the case studies requires data for political administrative bou
 ```bash
 wget https://github.com/wmgeolab/geoBoundaries/raw/main/releaseData/CGAZ/geoBoundariesCGAZ_ADM0.geojson -O data/geoBoundariesCGAZ_ADM0.geojson
 ```
+
+### Validate installation of dependencies
+
+You can run `scripts/check.sh` to validate that the container is built correctly and all dependencies are included. The script runs a short end-to-end test (single step, single target). If everything is working as expected, it should complete in 10 compute-minutes and print
+```
+Everything seems to be fine.
+```
+as the final line.
 
 ### Evaluation of fabricating extreme weather predictions
 
